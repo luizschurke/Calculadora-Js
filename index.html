@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef1f6;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .calculadora {
+      width: 300px;
+      padding: 16px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    #visor {
+      width: 100%;
+      height: 64px;
+      margin-bottom: 12px;
+      padding: 0 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      font-size: 28px;
+      font-weight: bold;
+      text-align: right;
+      background: #fafafa;
+    }
+
+    .teclas {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      height: 52px;
+      border: none;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      background: #f0f0f0;
+      transition: filter 0.15s;
+    }
+
+    button:hover { filter: brightness(0.93); }
+    button:active { transform: scale(0.96); }
+
+    .operador { background: #6496dc; color: #fff; }
+    .limpar   { background: #e6786e; color: #fff; grid-column: span 4; }
+  </style>
+</head>
+<body>
+  <div class="calculadora">
+    <input type="text" id="visor" value="0" readonly>
+
+    <div class="teclas">
+      <button onclick="digitar('7')">7</button>
+      <button onclick="digitar('8')">8</button>
+      <button onclick="digitar('9')">9</button>
+      <button class="operador" onclick="operacao('/')">÷</button>
+
+      <button onclick="digitar('4')">4</button>
+      <button onclick="digitar('5')">5</button>
+      <button onclick="digitar('6')">6</button>
+      <button class="operador" onclick="operacao('*')">×</button>
+
+      <button onclick="digitar('1')">1</button>
+      <button onclick="digitar('2')">2</button>
+      <button onclick="digitar('3')">3</button>
+      <button class="operador" onclick="operacao('-')">−</button>
+
+      <button onclick="digitar('0')">0</button>
+      <button onclick="ponto()">.</button>
+      <button class="operador" onclick="igual()">=</button>
+      <button class="operador" onclick="operacao('+')">+</button>
+
+      <button class="limpar" onclick="limpar()">C</button>
+    </div>
+  </div>
+
+  <script>
+    const visor = document.getElementById('visor');
+    let primeiroNumero = 0;
+    let operador = '';
+    let novoNumero = true;
+
+    function digitar(n) {
+      if (visor.value === 'Erro') limpar();
+      if (novoNumero || visor.value === '0') {
+        visor.value = n;
+      } else {
+        visor.value += n;
+      }
+      novoNumero = false;
+    }
+
+    function ponto() {
+      if (visor.value === 'Erro') limpar();
+      if (novoNumero) {
+        visor.value = '0.';
+        novoNumero = false;
+      } else if (!visor.value.includes('.')) {
+        visor.value += '.';
+      }
+    }
+
+    function operacao(op) {
+      if (visor.value === 'Erro') return;
+      if (operador && !novoNumero) calcular();
+      if (visor.value === 'Erro') return;
+      primeiroNumero = parseFloat(visor.value);
+      operador = op;
+      novoNumero = true;
+    }
+
+    function igual() {
+      if (operador && !novoNumero) {
+        calcular();
+        operador = '';
+        novoNumero = true;
+      }
+    }
+
+    function calcular() {
+      const segundo = parseFloat(visor.value);
+      let resultado;
+
+      switch (operador) {
+        case '+': resultado = primeiroNumero + segundo; break;
+        case '-': resultado = primeiroNumero - segundo; break;
+        case '*': resultado = primeiroNumero * segundo; break;
+        case '/':
+          if (segundo === 0) {
+            visor.value = 'Erro';
+            operador = '';
+            novoNumero = true;
+            return;
+          }
+          resultado = primeiroNumero / segundo;
+          break;
+      }
+
+      // evita números como 0.30000000000000004
+      resultado = parseFloat(resultado.toFixed(10));
+      visor.value = resultado;
+      primeiroNumero = resultado;
+    }
+
+    function limpar() {
+      visor.value = '0';
+      primeiroNumero = 0;
+      operador = '';
+      novoNumero = true;
+    }
+  </script>
+</body>
+</html>
